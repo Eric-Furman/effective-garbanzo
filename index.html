@@ -17,6 +17,7 @@
 
         .player-container {
             text-align: center;
+            width: 300px;
         }
 
         button {
@@ -27,27 +28,55 @@
             color: white;
             border: none;
             border-radius: 5px;
+            margin: 10px;
         }
 
         button:hover {
             background-color: #0056b3;
         }
 
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #007bff;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
 
 <div class="player-container">
-    <audio id="audioPlayer" src="audiofile.wav"></audio>
+    <!-- Audio Player -->
+    <audio id="audioPlayer" src="audiofile.wav" preload="auto"></audio>
+    
     <button id="playPauseButton" onclick="togglePlayPause()">Play</button>
+    <button id="replayButton" onclick="replayAudio()">Replay</button>
 
-     <!-- “…- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --.." -->
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <!--
+    …- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
+    -->
 </div>
 
 <script>
     const audioPlayer = document.getElementById("audioPlayer");
     const playPauseButton = document.getElementById("playPauseButton");
+    const progressBar = document.getElementById("progressBar");
+    const replayButton = document.getElementById("replayButton");
 
+    // Toggle between play and pause
     function togglePlayPause() {
         if (audioPlayer.paused) {
             audioPlayer.play();
@@ -57,7 +86,26 @@
             playPauseButton.textContent = "Play";
         }
     }
+
+    // Replay the audio from the start
+    function replayAudio() {
+        audioPlayer.currentTime = 0; // Reset the audio to the beginning
+        audioPlayer.play();          // Play the audio
+        playPauseButton.textContent = "Pause"; // Update button to "Pause"
+    }
+
+    // Update the progress bar as the audio plays
+    audioPlayer.addEventListener("timeupdate", function() {
+        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        progressBar.style.width = progress + "%";
+    });
+
+    // Handle audio ended
+    audioPlayer.addEventListener("ended", function() {
+        playPauseButton.textContent = "Play"; // Reset button text when audio ends
+    });
 </script>
 
 </body>
 </html>
+
