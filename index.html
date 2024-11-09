@@ -65,6 +65,7 @@
     
     <button id="playPauseButton" onclick="togglePlayPause()">Play</button>
     <button id="replayButton" onclick="replayAudio()">Replay</button>
+    <button id="speedButton" onclick="toggleSpeed()">Normal Speed</button>
 
     <!-- Progress Bar -->
     <div class="progress-container">
@@ -75,9 +76,9 @@
     <div class="timer" id="timerDisplay">0:00</div>
 
     <!-- Playback Speed Control -->
-    <div>
+    <!--<div>
         <button id="speedButton" onclick="toggleSpeed()">Normal Speed</button>
-    </div>
+    </div> -->
 </div>
 
 <script>
@@ -136,10 +137,10 @@
             speedButton.textContent = "Normal Speed"; // Update button text
         } else if (isHalfSpeed) {
             audioPlayer.playbackRate = 0.5; // Set to half speed
-            speedButton.textContent = "Slower"; // Update button text
+            speedButton.textContent = "Slower Speed"; // Update button text
         } else {
             audioPlayer.playbackRate = 1.25; // Set to quarter speed
-            speedButton.textContent = "Faster"; // Update button text
+            speedButton.textContent = "Faster Speed"; // Update button text
         }
 
         // Toggle speed states
