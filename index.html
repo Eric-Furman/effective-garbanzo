@@ -96,6 +96,10 @@
     let lastToneType = ""; // Last detected tone type
     let toneDetected = false; // Flag to track if a tone was detected
 
+    // Morse Code Timings at 20 wpm (Farnsworth speed)
+    const DOT_DURATION = 0.06; // seconds
+    const DASH_DURATION = 0.18; // seconds
+
     // Set up Web Audio API
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const analyser = audioContext.createAnalyser();
@@ -105,7 +109,7 @@
 
     // Audio constants
     const SAMPLE_RATE = audioContext.sampleRate;
-    const THRESHOLD = 0.1; // The minimum amplitude for detecting tones
+    const THRESHOLD = 0.05; // Threshold for detecting tone start, adjust for your file
 
     // Toggle between play and pause
     function togglePlayPause() {
@@ -172,13 +176,13 @@
             currentSignalDuration = audioPlayer.currentTime - lastSignalTime;
 
             // Check if we should classify this tone as a dot or dash
-            if (currentSignalDuration >= 0.2 && currentSignalDuration < 0.6) {
+            if (currentSignalDuration >= DOT_DURATION && currentSignalDuration < DASH_DURATION) {
                 // Short duration: Dot
                 if (lastToneType !== "dot") {
                     lastToneType = "dot";
                     morseTone.textContent = `Current Tone: ${lastToneType}`;
                 }
-            } else if (currentSignalDuration >= 0.6) {
+            } else if (currentSignalDuration >= DASH_DURATION) {
                 // Longer duration: Dash
                 if (lastToneType !== "dash") {
                     lastToneType = "dash";
