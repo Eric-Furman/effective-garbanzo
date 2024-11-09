@@ -136,10 +136,10 @@
             speedButton.textContent = "Normal Speed"; // Update button text
         } else if (isHalfSpeed) {
             audioPlayer.playbackRate = 0.5; // Set to half speed
-            speedButton.textContent = "0.5x Speed"; // Update button text
+            speedButton.textContent = "Slower"; // Update button text
         } else {
-            audioPlayer.playbackRate = 0.25; // Set to quarter speed
-            speedButton.textContent = "0.25x Speed"; // Update button text
+            audioPlayer.playbackRate = 1.25; // Set to quarter speed
+            speedButton.textContent = "Faster"; // Update button text
         }
 
         // Toggle speed states
