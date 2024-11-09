@@ -91,10 +91,10 @@
     const morseTone = document.getElementById("morseTone");
 
     let isHalfSpeed = false; // Track the current speed state
-    let lastTime = 0;
-    let currentToneDuration = 0;
-    let toneStartTime = 0;
-    let toneType = ""; // "dot" or "dash"
+    let lastSignalTime = 0;  // Time when the tone started
+    let currentSignalDuration = 0; // Duration of the current tone
+    let lastToneType = ""; // Last detected tone type
+    let toneDetected = false; // Flag to track if a tone was detected
 
     // Set up Web Audio API
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -106,9 +106,6 @@
     // Audio constants
     const SAMPLE_RATE = audioContext.sampleRate;
     const THRESHOLD = 0.1; // The minimum amplitude for detecting tones
-
-    let lastSignalTime = 0; // Time when last signal started
-    let currentSignalDuration = 0; // Duration of current signal
 
     // Toggle between play and pause
     function togglePlayPause() {
@@ -165,30 +162,37 @@
 
         // If the amplitude is above the threshold, it's a tone
         if (maxAmplitude > THRESHOLD) {
-            if (lastSignalTime === 0) {
+            if (!toneDetected) {
+                // Tone just started, so we record the start time
                 lastSignalTime = audioPlayer.currentTime;
+                toneDetected = true;
             }
 
-            // Update the duration of the current tone
+            // Calculate how long the tone has been playing
             currentSignalDuration = audioPlayer.currentTime - lastSignalTime;
 
-            if (currentSignalDuration >= 0.2) {
-                // Classify based on tone duration
-                if (currentSignalDuration < 0.6) {
-                    toneType = "dot";
-                } else {
-                    toneType = "dash";
+            // Check if we should classify this tone as a dot or dash
+            if (currentSignalDuration >= 0.2 && currentSignalDuration < 0.6) {
+                // Short duration: Dot
+                if (lastToneType !== "dot") {
+                    lastToneType = "dot";
+                    morseTone.textContent = `Current Tone: ${lastToneType}`;
                 }
-
-                // Update the displayed tone type
-                morseTone.textContent = `Current Tone: ${toneType}`;
-
-                // Reset signal time for next tone
-                lastSignalTime = 0;
+            } else if (currentSignalDuration >= 0.6) {
+                // Longer duration: Dash
+                if (lastToneType !== "dash") {
+                    lastToneType = "dash";
+                    morseTone.textContent = `Current Tone: ${lastToneType}`;
+                }
             }
         } else {
-            // If no tone is detected, reset
-            lastSignalTime = 0;
+            // No tone detected
+            if (toneDetected) {
+                // If a tone was previously detected, reset the tone detection
+                toneDetected = false;
+                lastSignalTime = 0;
+                currentSignalDuration = 0;
+            }
         }
     }
 
