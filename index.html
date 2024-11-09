@@ -49,6 +49,12 @@
             background-color: #007bff;
             border-radius: 5px;
         }
+
+        .timer {
+            font-size: 14px;
+            color: #333;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -65,6 +71,9 @@
         <div id="progressBar" class="progress-bar"></div>
     </div>
 
+    <!-- Timer -->
+    <div class="timer" id="timerDisplay">0:00</div>
+
     <!-- Playback Speed Control -->
     <div>
         <button id="speedButton" onclick="toggleSpeed()">Normal Speed</button>
@@ -77,6 +86,7 @@
     const progressBar = document.getElementById("progressBar");
     const replayButton = document.getElementById("replayButton");
     const speedButton = document.getElementById("speedButton");
+    const timerDisplay = document.getElementById("timerDisplay");
 
     let isQuarterSpeed = false; // Track the current speed state
     let isHalfSpeed = false;    // Track the current speed state
@@ -99,17 +109,25 @@
         playPauseButton.textContent = "Pause"; // Update button to "Pause"
     }
 
-    // Update the progress bar as the audio plays
+    // Update the progress bar and timer as the audio plays
     audioPlayer.addEventListener("timeupdate", function() {
+        // Update progress bar
         const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
         progressBar.style.width = progress + "%";
+
+        // Update timer
+        const currentTime = audioPlayer.currentTime;
+        const minutes = Math.floor(currentTime / 60);
+        const seconds = Math.floor(currentTime % 60);
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
     });
+
+    // ...- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
 
     // Handle audio ended
     audioPlayer.addEventListener("ended", function() {
         playPauseButton.textContent = "Play"; // Reset button text when audio ends
     });
-    // ...- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
 
     // Toggle playback speed between normal, half, and quarter speed
     function toggleSpeed() {
