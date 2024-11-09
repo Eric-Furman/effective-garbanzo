@@ -54,6 +54,12 @@
             font-size: 24px;
             margin-top: 10px;
             font-weight: bold;
+            opacity: 1;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .flash {
+            opacity: 0;
         }
     </style>
 </head>
@@ -90,14 +96,15 @@
     const speedButton = document.getElementById("speedButton");
     const morseTone = document.getElementById("morseTone");
 
-    let isHalfSpeed = false; // Track the current speed state
-    let lastSignalTime = 0;  // Time when the tone started
+    let isQuarterSpeed = false; // Track the current speed state
+    let isHalfSpeed = false;    // Track the current speed state
+    let lastSignalTime = 0;     // Time when the tone started
     let currentSignalDuration = 0; // Duration of the current tone
-    let lastToneType = ""; // Last detected tone type
-    let toneDetected = false; // Flag to track if a tone was detected
+    let lastToneType = "";      // Last detected tone type
+    let toneDetected = false;   // Flag to track if a tone was detected
 
     // Morse Code Timings at 20 wpm (Farnsworth speed)
-    const DOT_DURATION = 0.06; // seconds
+    const DOT_DURATION = 0.06;  // seconds
     const DASH_DURATION = 0.18; // seconds
 
     // Set up Web Audio API
@@ -143,16 +150,22 @@
         morseTone.textContent = "Audio ended.";
     });
 
-    // Toggle playback speed between normal and half speed
+    // Toggle playback speed between normal, half, and quarter speed
     function toggleSpeed() {
-        if (isHalfSpeed) {
+        if (isQuarterSpeed) {
             audioPlayer.playbackRate = 1; // Set to normal speed
             speedButton.textContent = "Normal Speed"; // Update button text
-        } else {
+        } else if (isHalfSpeed) {
             audioPlayer.playbackRate = 0.5; // Set to half speed
             speedButton.textContent = "0.5x Speed"; // Update button text
+        } else {
+            audioPlayer.playbackRate = 0.25; // Set to quarter speed
+            speedButton.textContent = "0.25x Speed"; // Update button text
         }
-        isHalfSpeed = !isHalfSpeed; // Toggle the state
+
+        // Toggle speed states
+        isQuarterSpeed = !isQuarterSpeed && !isHalfSpeed;
+        isHalfSpeed = !isQuarterSpeed && !isHalfSpeed;
     }
 
     // Function to detect tone type based on amplitude
@@ -180,13 +193,13 @@
                 // Short duration: Dot
                 if (lastToneType !== "dot") {
                     lastToneType = "dot";
-                    morseTone.textContent = `Current Tone: ${lastToneType}`;
+                    flashTone();
                 }
             } else if (currentSignalDuration >= DASH_DURATION) {
                 // Longer duration: Dash
                 if (lastToneType !== "dash") {
                     lastToneType = "dash";
-                    morseTone.textContent = `Current Tone: ${lastToneType}`;
+                    flashTone();
                 }
             }
         } else {
@@ -198,6 +211,15 @@
                 currentSignalDuration = 0;
             }
         }
+    }
+
+    // Function to flash the tone display (dot or dash)
+    function flashTone() {
+        morseTone.textContent = `Current Tone: ${lastToneType}`;
+        morseTone.classList.remove("flash");
+        setTimeout(() => {
+            morseTone.classList.add("flash");
+        }, 100); // Flash duration
     }
 
     // Main loop for analyzing audio and detecting tones
