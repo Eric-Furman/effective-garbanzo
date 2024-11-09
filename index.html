@@ -49,18 +49,6 @@
             background-color: #007bff;
             border-radius: 5px;
         }
-
-        #morseTone {
-            font-size: 24px;
-            margin-top: 10px;
-            font-weight: bold;
-            opacity: 1;
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        .flash {
-            opacity: 0;
-        }
     </style>
 </head>
 <body>
@@ -81,48 +69,22 @@
     <div>
         <button id="speedButton" onclick="toggleSpeed()">Normal Speed</button>
     </div>
-
-    <!-- Morse Tone Indicator -->
-    <div id="morseTone">Waiting for tone...</div>
 </div>
 
 <script>
-    // ...- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
-
     const audioPlayer = document.getElementById("audioPlayer");
     const playPauseButton = document.getElementById("playPauseButton");
     const progressBar = document.getElementById("progressBar");
     const replayButton = document.getElementById("replayButton");
     const speedButton = document.getElementById("speedButton");
-    const morseTone = document.getElementById("morseTone");
 
     let isQuarterSpeed = false; // Track the current speed state
     let isHalfSpeed = false;    // Track the current speed state
-    let lastSignalTime = 0;     // Time when the tone started
-    let currentSignalDuration = 0; // Duration of the current tone
-    let lastToneType = "";      // Last detected tone type
-    let toneDetected = false;   // Flag to track if a tone was detected
-
-    // Morse Code Timings at 20 wpm (Farnsworth speed)
-    const DOT_DURATION = 0.06;  // seconds
-    const DASH_DURATION = 0.18; // seconds
-
-    // Set up Web Audio API
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = audioContext.createAnalyser();
-    const source = audioContext.createMediaElementSource(audioPlayer);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-
-    // Audio constants
-    const SAMPLE_RATE = audioContext.sampleRate;
-    const THRESHOLD = 0.05; // Threshold for detecting tone start, adjust for your file
 
     // Toggle between play and pause
     function togglePlayPause() {
         if (audioPlayer.paused) {
             audioPlayer.play();
-            audioContext.resume();
             playPauseButton.textContent = "Pause";
         } else {
             audioPlayer.pause();
@@ -134,7 +96,6 @@
     function replayAudio() {
         audioPlayer.currentTime = 0; // Reset the audio to the beginning
         audioPlayer.play();          // Play the audio
-        audioContext.resume();
         playPauseButton.textContent = "Pause"; // Update button to "Pause"
     }
 
@@ -147,8 +108,8 @@
     // Handle audio ended
     audioPlayer.addEventListener("ended", function() {
         playPauseButton.textContent = "Play"; // Reset button text when audio ends
-        morseTone.textContent = "Audio ended.";
     });
+    // ...- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
 
     // Toggle playback speed between normal, half, and quarter speed
     function toggleSpeed() {
@@ -167,73 +128,6 @@
         isQuarterSpeed = !isQuarterSpeed && !isHalfSpeed;
         isHalfSpeed = !isQuarterSpeed && !isHalfSpeed;
     }
-
-    // Function to detect tone type based on amplitude
-    function detectTone() {
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        analyser.getByteFrequencyData(dataArray);
-
-        // Find the max amplitude (peak) in the frequency spectrum
-        let maxAmplitude = Math.max(...dataArray);
-
-        // If the amplitude is above the threshold, it's a tone
-        if (maxAmplitude > THRESHOLD) {
-            if (!toneDetected) {
-                // Tone just started, so we record the start time
-                lastSignalTime = audioPlayer.currentTime;
-                toneDetected = true;
-            }
-
-            // Calculate how long the tone has been playing
-            currentSignalDuration = audioPlayer.currentTime - lastSignalTime;
-
-            // Check if we should classify this tone as a dot or dash
-            if (currentSignalDuration >= DOT_DURATION && currentSignalDuration < DASH_DURATION) {
-                // Short duration: Dot
-                if (lastToneType !== "dot") {
-                    lastToneType = "dot";
-                    flashTone();
-                }
-            } else if (currentSignalDuration >= DASH_DURATION) {
-                // Longer duration: Dash
-                if (lastToneType !== "dash") {
-                    lastToneType = "dash";
-                    flashTone();
-                }
-            }
-        } else {
-            // No tone detected
-            if (toneDetected) {
-                // If a tone was previously detected, reset the tone detection
-                toneDetected = false;
-                lastSignalTime = 0;
-                currentSignalDuration = 0;
-            }
-        }
-    }
-
-    // Function to flash the tone display (dot or dash)
-    function flashTone() {
-        morseTone.textContent = `Current Tone: ${lastToneType}`;
-        morseTone.classList.remove("flash");
-        setTimeout(() => {
-            morseTone.classList.add("flash");
-        }, 100); // Flash duration
-    }
-
-    // Main loop for analyzing audio and detecting tones
-    function analyzeAudio() {
-        detectTone();
-        requestAnimationFrame(analyzeAudio);
-    }
-
-    // Initialize with normal speed
-    audioPlayer.playbackRate = 1;
-
-    // Start analyzing the audio
-    analyzeAudio();
-
 </script>
 
 </body>
