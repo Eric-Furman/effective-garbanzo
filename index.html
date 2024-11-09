@@ -65,9 +65,10 @@
         <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <!--
-    ...- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
-    -->
+    <!-- Playback Speed Control -->
+    <div>
+        <button id="speedButton" onclick="toggleSpeed()">Normal Speed</button>
+    </div>
 </div>
 
 <script>
@@ -75,6 +76,9 @@
     const playPauseButton = document.getElementById("playPauseButton");
     const progressBar = document.getElementById("progressBar");
     const replayButton = document.getElementById("replayButton");
+    const speedButton = document.getElementById("speedButton");
+
+    let isHalfSpeed = false; // Track the current speed state
 
     // Toggle between play and pause
     function togglePlayPause() {
@@ -93,6 +97,7 @@
         audioPlayer.play();          // Play the audio
         playPauseButton.textContent = "Pause"; // Update button to "Pause"
     }
+    //...- . .-. -.-- / --. --- --- -.. .-.-.- / - .... . / .-. . .-- .- .-. -.. / -.-- --- ..- / ... . . -.- / .. ... / -... . .-.. --- .-- .-.-.- / .... - - .--. ---... -..-. -..-. -... .. - .-.-.- .-.. -.-- -..-. ....- . .-. .--. -- --..
 
     // Update the progress bar as the audio plays
     audioPlayer.addEventListener("timeupdate", function() {
@@ -104,8 +109,22 @@
     audioPlayer.addEventListener("ended", function() {
         playPauseButton.textContent = "Play"; // Reset button text when audio ends
     });
+
+    // Toggle playback speed between normal and half speed
+    function toggleSpeed() {
+        if (isHalfSpeed) {
+            audioPlayer.playbackRate = 1; // Set to normal speed
+            speedButton.textContent = "Normal Speed"; // Update button text
+        } else {
+            audioPlayer.playbackRate = 0.5; // Set to half speed
+            speedButton.textContent = "0.5x Speed"; // Update button text
+        }
+        isHalfSpeed = !isHalfSpeed; // Toggle the state
+    }
+
+    // Initialize with normal speed
+    audioPlayer.playbackRate = 1;
 </script>
 
 </body>
 </html>
-
